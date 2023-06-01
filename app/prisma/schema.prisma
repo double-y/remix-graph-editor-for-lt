@@ -1,0 +1,34 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model NodeData {
+  id      String      @id @default(uuid())  
+  name String @unique
+  directingEdges DirectedEdgeData[] @relation("fromNode")
+  directedEdges DirectedEdgeData[] @relation("toNode")
+  nodeAttrs NodeAttrData[]
+}
+
+model NodeAttrData {
+  id      String      @id @default(uuid())  
+  key String
+  value String
+  node NodeData @relation(fields: [nodeId], references: [id])
+  nodeId String
+}
+
+model DirectedEdgeData {
+  id      String      @id @default(uuid())
+  fromNode NodeData? @relation(name: "fromNode", fields: [fromNodeId], references: [id])
+  fromNodeId String
+  toNode NodeData? @relation(name: "toNode", fields: [toNodeId], references: [id])
+  toNodeId String
+  @@unique([fromNodeId, toNodeId])
+}
+
